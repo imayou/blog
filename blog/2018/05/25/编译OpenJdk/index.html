@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="环境 CentOS7 jdk-7u79 ccach(可不要，下载，下载后编译安装即可)  准备 下载源码http://hg.openjdk.java.net/jdk8/jdk8左侧的gz压缩包 安装hg 1yum install hg -y 下载安装 123456789# wget https://www.mercurial-scm.org/release/centos7/RPMS/x86_64/">
+<meta name="keywords" content="ayou,imayou,阿友">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译OpenJdk">
+<meta property="og:url" content="http://www.zidu.top/2018/05/25/编译OpenJdk/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="环境 CentOS7 jdk-7u79 ccach(可不要，下载，下载后编译安装即可)  准备 下载源码http://hg.openjdk.java.net/jdk8/jdk8左侧的gz压缩包 安装hg 1yum install hg -y 下载安装 123456789# wget https://www.mercurial-scm.org/release/centos7/RPMS/x86_64/">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-25T14:44:18.981Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编译OpenJdk">
+<meta name="twitter:description" content="环境 CentOS7 jdk-7u79 ccach(可不要，下载，下载后编译安装即可)  准备 下载源码http://hg.openjdk.java.net/jdk8/jdk8左侧的gz压缩包 安装hg 1yum install hg -y 下载安装 123456789# wget https://www.mercurial-scm.org/release/centos7/RPMS/x86_64/">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2018/05/25/编译OpenJdk/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>编译OpenJdk | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2018/05/25/编译OpenJdk/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">编译OpenJdk
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-25 22:40:08 / 修改时间：22:44:18" itemprop="dateCreated datePublished" datetime="2018-05-25T22:40:08+08:00">2018-05-25</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><ol>
+<li><code>CentOS7</code></li>
+<li><code>jdk-7u79</code></li>
+<li><code>ccach</code>(<code>可不要</code>，<a href="https://ccache.samba.org/download.html" target="_blank" rel="noopener">下载</a>，下载后<code>编译安装</code>即可)</li>
+</ol>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><ol>
+<li>下载源码<a href="http://hg.openjdk.java.net/jdk8/jdk8" target="_blank" rel="noopener">http://hg.openjdk.java.net/jdk8/jdk8</a>左侧的<code>gz</code>压缩包</li>
+<li><p>安装<code>hg</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install hg -y</span><br></pre></td></tr></table></figure>
+<p>下载安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># wget https://www.mercurial-scm.org/release/centos7/RPMS/x86_64/mercurial-3.9.2-1.x86_64.rpm</span><br><span class="line"># chmod 755 mercurial-3.9.2-1.x86_64.rpm</span><br><span class="line"># rpm -ivh mercurial-3.9.2-1.x86_64.rpm</span><br><span class="line"># hg version</span><br><span class="line">Mercurial Distributed SCM (version 3.9.2)</span><br><span class="line">(see https://mercurial-scm.org for more information)</span><br><span class="line">Copyright (C) 2005-2016 Matt Mackall and others</span><br><span class="line">This is free software; see the source for copying conditions. There is NO</span><br><span class="line">warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解压上面的gz包，并下载源代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tar -zvxf jdk-935758609767.tar.gz</span><br><span class="line">mv jdk-935758609767 jdk8</span><br><span class="line">cd jdk8</span><br><span class="line">chmod -R 755 *</span><br><span class="line"> ./get_source.sh #下载需要一段时间</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><p>构建相关说明在<code>根目录</code>下的<code>README-builds.html</code><br>根据说明看<code>配置</code>是否缺少相关<code>依赖</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --<span class="built_in">enable</span>-debug --with-target-bits=64 --with-boot-jdk=/tools/jdk/jdk1.7.0_79/</span><br></pre></td></tr></table></figure></p>
+<p>根据<code>提示</code>安装相关依赖，比如我安装缺少了以下相关<code>依赖包</code>（每安装一条然后再执行上面<code>./configure</code>便会继续提示你还需要的依赖包）<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum install libXtst-devel libXt-devel libXrender-devel -y</span><br><span class="line">yum install cups-devel -y</span><br><span class="line">yum install freetype-devel -y</span><br><span class="line">yum install alsa-lib-devel -y</span><br></pre></td></tr></table></figure></p>
+<p><code>新建一个脚本</code>贴入以下<code>代码</code>（我从书里抄下来的<code>纯手打</code>）<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">本脚本摘自《深入理解JAVA虚拟机》</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">语言选项，必须设置，否则编译好后会出现HashTable的NPE错</span></span><br><span class="line">export LANG=C</span><br><span class="line"><span class="meta">#</span><span class="bash">Bootstrap JDK的安装路径，必须设置</span></span><br><span class="line">export ALT_BOOTDIR=/tools/jdk/jdk1.7.0_79/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">允许自动下载依赖</span></span><br><span class="line">export ALLOW_DOWNLOADS=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">并行编译的线程数，设置为和CPU内核数量一致即可</span></span><br><span class="line">export HOTSPOT_BUILD_JOBS=8</span><br><span class="line">export ALT_PARALLEL_COMPILE_JOBS=8</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">比较本次build出来的映像与先前版本的差异，这对我们来说没有意义</span></span><br><span class="line"><span class="meta">#</span><span class="bash">必须设置为<span class="literal">false</span>，否则sanity检查会报缺少先前版本JDK映射错误提示</span></span><br><span class="line"><span class="meta">#</span><span class="bash">如果已经设置dev或者DEV_ONLY=<span class="literal">true</span>，这个不显式设置也行</span></span><br><span class="line">export SKIP_COMPARE_IMAGES=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">使用编译头文件，不加这个编译会更慢一些</span></span><br><span class="line">export USE_PRECOMPILED_HEADER=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">编译的内容</span></span><br><span class="line">export BUILD_LANGTOOLS=true</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> BUILD_JAXP=<span class="literal">false</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> BUILD_JAXWS=<span class="literal">false</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> BUILD_CORBA=<span class="literal">false</span></span></span><br><span class="line">export BUILD_HOTSPOT=true</span><br><span class="line">export BUILD_JDK=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">要编译的版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> SKIP_DEBUG_BUILD=<span class="literal">false</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> SKIP_FASTDEBUG_BUILD=<span class="literal">false</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">export</span> DEBUG_NAME=debug</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">把它设置为<span class="literal">false</span>可以避开javaws和浏览器Java插件之类的部分build</span></span><br><span class="line">BUILD_DEPLOY=false</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">把它设置为<span class="literal">false</span>就不会build出安装包。因为安装包有些奇怪的依赖；</span></span><br><span class="line"><span class="meta">#</span><span class="bash">但即便不build出它也已经能得到完整的JDK映像</span></span><br><span class="line">BUILD_INSTALL=false</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">编译结果存放路径</span></span><br><span class="line">export ALT_OUTPUTDIR=/tools/jdk/build/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">这两个变量必须去掉</span></span><br><span class="line">unset JAVA_HOME</span><br><span class="line">unset CLASSPATH</span><br><span class="line"></span><br><span class="line">make 2&gt;&amp;1 | tee $ALT_OUTPUTDIR/build.log</span><br></pre></td></tr></table></figure></p>
+<p>给这个脚本<code>权限</code>然后<code>运行</code>脚本<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 ayou-build-openjdk.sh</span><br><span class="line">./ayou-build-openjdk.sh</span><br></pre></td></tr></table></figure></p>
+<p>大概跑了<code>22分钟</code>左右，如下提示说忽略了一些配置，到此已经<code>编译</code>完成了。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">----- Build times -------</span><br><span class="line">Start 2016-11-16 00:04:18</span><br><span class="line">End   2016-11-16 00:26:46</span><br><span class="line">00:00:34 corba</span><br><span class="line">00:15:24 hotspot</span><br><span class="line">00:00:20 jaxp</span><br><span class="line">00:00:31 jaxws</span><br><span class="line">00:05:05 jdk</span><br><span class="line">00:00:32 langtools</span><br><span class="line">00:22:28 TOTAL</span><br><span class="line">-------------------------</span><br><span class="line">Finished building OpenJDK for target 'default'</span><br><span class="line"></span><br><span class="line">WARNING: You have the following ALT_ variables set:</span><br><span class="line">ALT_PARALLEL_COMPILE_JOBS=8 ALT_BOOTDIR=/tools/jdk/jdk1.7.0_79/ ALT_OUTPUTDIR=/tools/jdk/build/</span><br><span class="line">ALT_ variables are deprecated and will be ignored. Please clean your environment.</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>进入<code>jdk</code>根目录下的<code>build</code>目录下的<code>linux-x86_64-normal-server-fastdebug</code>目录，然后目录jdk加到path就可以了<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME=/tools/jdk/jdk8/build/linux-x86_64-normal-server-fastdebug/jdk</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar</span><br><span class="line">export JAVA_HOME PATH CLASSPATH</span><br></pre></td></tr></table></figure></p>
+<p>然后查看版本<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">使刚加的`环境变量`生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">查看版本</span></span><br><span class="line">java -version</span><br><span class="line">openjdk version "1.8.0-internal-fastdebug"</span><br><span class="line">OpenJDK Runtime Environment (build 1.8.0-internal-fastdebug-root_2016_11_16_00_03-b00)</span><br><span class="line">OpenJDK 64-Bit Server VM (build 25.0-b70-fastdebug, mixed mode)</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/25/CentOS7挂载硬盘（多分区）/index.html" rel="prev" title="CentOS7挂载硬盘（多分区）">
+                CentOS7挂载硬盘（多分区） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境"><span class="nav-number">1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备"><span class="nav-number">2.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译"><span class="nav-number">3.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">4.</span> <span class="nav-text">使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

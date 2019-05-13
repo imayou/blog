@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="原文1234567891011121314151617181920# 使用官方提供的 Python 开发镜像作为基础镜像FROM python:2.7-slim# 将工作目录切换为 /appWORKDIR /app# 将当前目录下的所有内容复制到 /app 下ADD . /app# 使用 pip 命令安装这个应用所需要的依赖RUN pip install --trusted-host pypi.p">
+<meta name="keywords" content="docker、kubernate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="08-白话容器基础（四）：重新认识Docker容器">
+<meta property="og:url" content="http://www.zidu.top/2019/05/08/08-白话容器基础（四）：重新认识Docker容器/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="原文1234567891011121314151617181920# 使用官方提供的 Python 开发镜像作为基础镜像FROM python:2.7-slim# 将工作目录切换为 /appWORKDIR /app# 将当前目录下的所有内容复制到 /app 下ADD . /app# 使用 pip 命令安装这个应用所需要的依赖RUN pip install --trusted-host pypi.p">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-08T03:18:30.118Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="08-白话容器基础（四）：重新认识Docker容器">
+<meta name="twitter:description" content="原文1234567891011121314151617181920# 使用官方提供的 Python 开发镜像作为基础镜像FROM python:2.7-slim# 将工作目录切换为 /appWORKDIR /app# 将当前目录下的所有内容复制到 /app 下ADD . /app# 使用 pip 命令安装这个应用所需要的依赖RUN pip install --trusted-host pypi.p">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2019/05/08/08-白话容器基础（四）：重新认识Docker容器/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>08-白话容器基础（四）：重新认识Docker容器 | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2019/05/08/08-白话容器基础（四）：重新认识Docker容器/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">08-白话容器基础（四）：重新认识Docker容器
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-08 10:04:42 / 修改时间：11:18:30" itemprop="dateCreated datePublished" datetime="2019-05-08T10:04:42+08:00">2019-05-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="https://time.geekbang.org/column/article/23132" target="_blank" rel="noopener">原文</a><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 使用官方提供的 Python 开发镜像作为基础镜像</span></span><br><span class="line">FROM python:2.7-slim</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将工作目录切换为 /app</span></span><br><span class="line">WORKDIR /app</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将当前目录下的所有内容复制到 /app 下</span></span><br><span class="line">ADD . /app</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 使用 pip 命令安装这个应用所需要的依赖</span></span><br><span class="line">RUN pip install --trusted-host pypi.python.org -r requirements.txt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 允许外界访问容器的 80 端口</span></span><br><span class="line">EXPOSE 80</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置环境变量</span></span><br><span class="line">ENV NAME World</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置容器进程为：python app.py，即：这个 Python 应用的启动命令</span></span><br><span class="line">CMD ["python", "app.py"]</span><br></pre></td></tr></table></figure></p>
+<p>FORM指定了<code>python:2.7-slim</code>这个官方基础镜像，如果不这么写得这么写：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu:latest</span><br><span class="line">RUN apt-get update -yRUN apt-get install -y python-pip python-dev build-essential</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>其中，RUN原语就是在容器里执行shell命令的意思，而WORKDIR，意思是在这一句之后，Dockerfile后面的操作都以这一句指定的/app目录作为当前目录。</p>
+<p>CMD [“python”,”app.py”]==”docker run python app.py”</p>
+<p><code>ENTRYPOINT</code>和<code>CMD</code>都是Docker容器进程启动所必须的参数，完整格式是：<code>ENTRYPOINT COM</code>， 默认情况下Docker会为你提供一个隐含的<code>ENTRYPOINT</code>即：/bin/sh -c，所以在不指定<code>ENTRPOINT</code>时，实际运行在容器里的完整进程是：/bin/sh -c “python app.py”，即CMD的内容就是ENTRYPOINT的参数</p>
+<blockquote>
+<p>so 称Docker容器的启动进程为ENTRYPOINT，而不是CMD</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t helloworld .</span><br></pre></td></tr></table></figure>
+<p><code>-t</code> 的作用是给这个镜像加一个Tag，即：起一个好听的名字，<code>docker build</code> 会自动加载当前目录下的Dockerfile文件，然后按照顺序，执行文件中的原语，实际上可以等同于Docker使用基础镜像启动了一个容器，然后在容器中一次执行<code>Dockerfile</code>中的原语</p>
+<blockquote>
+<p>Dockerfile中的每个原语执行后，都会生成一个对应的镜像层，即使原语本身并没有明显的修改文件的操作（比如，ENV原语），它对应的层也会存在，只不过在外界看来，这个层是空的。</p>
+</blockquote>
+<p>上传镜像需要注册Docker Hub帐号 然后docker login登录，用docker tag命令给容器起一个完整的名字：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag helloworld ayou/helloworld:v1</span><br></pre></td></tr></table></figure></p>
+<p>然后执行<code>docker push</code>把镜像上传到Docker Hub上</p>
+<p>可以用docker commit把一个正在运行的容器直接提交为一个镜像，可以在容器运行起来后，又对容器做了一些操作，并且要把操作保存到镜像里：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker <span class="built_in">exec</span> -it 4ddf4638572d /bin/sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在容器内部新建了一个文件</span></span><br><span class="line">root@4ddf4638572d:/app# touch test.txt</span><br><span class="line">root@4ddf4638572d:/app# exit</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将这个新建的文件提交到镜像中保存</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker commit 4ddf4638572d geektime/helloworld:v2</span></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>docker exec 是怎么做到进入容器里的呢？</p>
+</blockquote>
+<p>Linux Namespace创建的隔离空间虽然看不见摸不着，但一个进程的Namespace信息在宿主机上是以一个真实的文件存在的。</p>
+<p>比如查看docker容器的PID：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker inspect --format <span class="string">'&#123;&#123; .State.Pid &#125;&#125;'</span>  4ddf4638572d</span></span><br><span class="line">25686</span><br></pre></td></tr></table></figure></p>
+<p>通过PID查看宿主机的proc文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ls -l  /proc/25686/ns</span></span><br><span class="line">total 0</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 cgroup -&gt; cgroup:[4026531835]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 ipc -&gt; ipc:[4026532278]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 mnt -&gt; mnt:[4026532276]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 net -&gt; net:[4026532281]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 pid -&gt; pid:[4026532279]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 pid_for_children -&gt; pid:[4026532279]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 user -&gt; user:[4026531837]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 uts -&gt; uts:[4026532277]</span><br></pre></td></tr></table></figure></p>
+<p>可见每种Linux Namespace，都在对应的/proc/[PID]/ns下有一个对应的虚拟文件，并且链接到一个真实的Namespace文件上。这样我们就可以对Namespace搞事情了，比如加入到一个已经存在的Namespace当中，也就意味着：一个进程，可以选择加入到某个进程已有的Namespace当中，从而达到“进入”这个进程所在容器的目的，这正是docker exec的实现原理。依赖于一个名叫setns()的linux系统调用。如下：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">define _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;fcntl.h&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;sched.h&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;unistd.h&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;stdlib.h&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;stdio.h&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">define errExit(msg) <span class="keyword">do</span> &#123; perror(msg); <span class="built_in">exit</span>(EXIT_FAILURE);&#125; <span class="keyword">while</span> (0)</span></span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[]) &#123;</span><br><span class="line">    int fd;</span><br><span class="line">    </span><br><span class="line">    fd = open(argv[1], O_RDONLY);</span><br><span class="line">    if (setns(fd, 0) == -1) &#123;</span><br><span class="line">        errExit("setns");</span><br><span class="line">    &#125;</span><br><span class="line">    execvp(argv[2], &amp;argv[2]); </span><br><span class="line">    errExit("execvp");</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>共2参数</p>
+<ul>
+<li>argv[1]是当前要加入的Namespace文件的路径，比如/prod/25686/hs/net</li>
+<li>argv[2]是你要在这个Namespace里运行的进程，比如/bin/bash</li>
+</ul>
+<blockquote>
+<p>代码核心操作，通过open()系统调用打开指定的Namespace文件，并把这个文件的描述符fd传给setns()，setns()执行后，当前进程就加入了这个文件对应的Linux Namespace 当中了</p>
+</blockquote>
+<p>例：编译并加入到容器进程PID=25686的Network Namespace中<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o set_ns set_ns.c </span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./set_ns /proc/25686/ns/net /bin/bash </span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ifconfig</span></span><br><span class="line">eth0      Link encap:Ethernet  HWaddr 02:42:ac:11:00:02  </span><br><span class="line">          inet addr:172.17.0.2  Bcast:0.0.0.0  Mask:255.255.0.0</span><br><span class="line">          inet6 addr: fe80::42:acff:fe11:2/64 Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1</span><br><span class="line">          RX packets:12 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:10 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">	   collisions:0 txqueuelen:0 </span><br><span class="line">          RX bytes:976 (976.0 B)  TX bytes:796 (796.0 B)</span><br><span class="line"></span><br><span class="line">lo        Link encap:Local Loopback  </span><br><span class="line">          inet addr:127.0.0.1  Mask:255.0.0.0</span><br><span class="line">          inet6 addr: ::1/128 Scope:Host</span><br><span class="line">          UP LOOPBACK RUNNING  MTU:65536  Metric:1</span><br><span class="line">          RX packets:0 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">	  collisions:0 txqueuelen:1000 </span><br><span class="line">          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)</span><br></pre></td></tr></table></figure></p>
+<p>在宿主机上可以找到到这个set_ns程序执行的/bin/bash真实的PID是28499<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 在宿主机上</span></span><br><span class="line">ps aux | grep /bin/bash</span><br><span class="line">root     28499  0.0  0.0 19944  3612 pts/0    S    14:15   0:00 /bin/bash</span><br></pre></td></tr></table></figure></p>
+<p>查看PID=28499进程的Namespace<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ls -l /proc/28499/ns/net</span></span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:18 /proc/28499/ns/net -&gt; net:[4026532281]</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls -l  /proc/25686/ns/net</span></span><br><span class="line">lrwxrwxrwx 1 root root 0 Aug 13 14:05 /proc/25686/ns/net -&gt; net:[4026532281]</span><br></pre></td></tr></table></figure></p>
+<p>在/proc/[PID]/ns/net目录下，这个PID=28499进程与我们之前的docker容器进程（PID=25686）指向的Network Namespace文件完全一样，说明这个两个进程共享了这个net:[4026532281]的Network Namespace</p>
+<p><code>--net</code> 参数可以让你在启动一个容器的是并<code>加入</code>到另一个容器的Network Namespace里<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker run -it --net container:4ddf4638572d busybox ifconfig</span></span><br></pre></td></tr></table></figure></p>
+<p>这样容器启动的时候就会直接加入到ID=4ddf4638572d的容器，也就是前面的python容器应用容器（PID=25686）的Network Namespace中，所以ifconfig返回的网卡信息和前面的小程序信息一模一样。</p>
+<p><code>-net-host</code>不会为进程启动Network Namespace，意味着这个容器拆除了Network Namespace的<code>隔离墙</code>，就和普通进程已有共享宿主机的网络栈。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker、kubernate/" rel="tag"># docker、kubernate</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/08/07-白话容器基础（三）：深入理解容器镜像/index.html" rel="next" title="07-白话容器基础（三）：深入理解容器镜像">
+                <i class="fa fa-chevron-left"></i> 07-白话容器基础（三）：深入理解容器镜像
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/08/分布式一些总结/index.html" rel="prev" title="分布式一些总结">
+                分布式一些总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

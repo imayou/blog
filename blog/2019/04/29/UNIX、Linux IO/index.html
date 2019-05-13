@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前提  网络知识梳理–OSI七层网络与TCP/IP五层网络架构及二层/三层网络 报文详解   3次握手建立连接 第一次握手：Client将标志位SYN置为1，随机产生一个值seq=J，并将该数据包发送给Server，Client进入SYN_SENT状态，等待Server确认。 第二次握手：Server收到数据包后由标志位SYN=1知道Client请求建立连接，Server将标志位SYN和ACK都">
+<meta name="keywords" content="ayou,imayou,阿友">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX、Linux IO">
+<meta property="og:url" content="http://www.zidu.top/2019/04/29/UNIX、Linux IO/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="前提  网络知识梳理–OSI七层网络与TCP/IP五层网络架构及二层/三层网络 报文详解   3次握手建立连接 第一次握手：Client将标志位SYN置为1，随机产生一个值seq=J，并将该数据包发送给Server，Client进入SYN_SENT状态，等待Server确认。 第二次握手：Server收到数据包后由标志位SYN=1知道Client请求建立连接，Server将标志位SYN和ACK都">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-04-29T13:14:26.819Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UNIX、Linux IO">
+<meta name="twitter:description" content="前提  网络知识梳理–OSI七层网络与TCP/IP五层网络架构及二层/三层网络 报文详解   3次握手建立连接 第一次握手：Client将标志位SYN置为1，随机产生一个值seq=J，并将该数据包发送给Server，Client进入SYN_SENT状态，等待Server确认。 第二次握手：Server收到数据包后由标志位SYN=1知道Client请求建立连接，Server将标志位SYN和ACK都">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2019/04/29/UNIX、Linux IO/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>UNIX、Linux IO | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2019/04/29/UNIX、Linux IO/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">UNIX、Linux IO
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-29 20:53:28 / 修改时间：21:14:26" itemprop="dateCreated datePublished" datetime="2019-04-29T20:53:28+08:00">2019-04-29</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>前提</p>
+<ul>
+<li><a href="https://www.cnblogs.com/kevingrace/p/5909719.html" target="_blank" rel="noopener">网络知识梳理–OSI七层网络与TCP/IP五层网络架构及二层/三层网络</a></li>
+<li><a href="http://www.cnblogs.com/GumpYan/p/5819933.html" target="_blank" rel="noopener">报文详解</a></li>
+</ul>
+</blockquote>
+<h4 id="3次握手建立连接"><a href="#3次握手建立连接" class="headerlink" title="3次握手建立连接"></a>3次握手建立连接</h4><ol>
+<li>第一次握手：Client将标志位SYN置为1，随机产生一个值seq=J，并将该数据包发送给Server，Client进入SYN_SENT状态，等待Server确认。</li>
+<li>第二次握手：Server收到数据包后由标志位SYN=1知道Client请求建立连接，Server将标志位SYN和ACK都置为1，ack=J+1，随机产生一个值seq=K，并将该数据包发送给Client以确认连接请求，Server进入SYN_RCVD状态。</li>
+<li>第三次握手：Client收到确认后，检查ack是否为J+1，ACK是否为1，如果正确则将标志位ACK置为1，ack=K+1，并将该数据包发送给Server，Server检查ack是否为K+1，ACK是否为1，如果正确则连接建立成功，Client和Server进入ESTABLISHED状态，完成三次握手，随后Client与Server之间可以开始传输数据了。</li>
+</ol>
+<h4 id="4次挥手断开连接"><a href="#4次挥手断开连接" class="headerlink" title="4次挥手断开连接"></a>4次挥手断开连接</h4><blockquote>
+<p>由于TCP连接时全双工的，因此，每个方向都必须要单独进行关闭，这一原则是当一方完成数据发送任务后，发送一个FIN来终止这一方向的连接，收到一个FIN只是意味着这一方向上没有数据流动了，即不会再收到数据了，但是在这个TCP连接上仍然能够发送数据，直到这一方向也发送了FIN。首先进行关闭的一方将执行主动关闭，而另一方则执行被动关闭，上图描述的即是如此。</p>
+<ol>
+<li>第一次挥手：Client发送一个FIN，用来关闭Client到Server的数据传送，Client进入FIN_WAIT_1状态。</li>
+<li>第二次挥手：Server收到FIN后，发送一个ACK给Client，确认序号为收到序号+1（与SYN相同，一个FIN占用一个序号），Server进入CLOSE_WAIT状态。</li>
+<li>第三次挥手：Server发送一个FIN，用来关闭Server到Client的数据传送，Server进入LAST_ACK状态。</li>
+<li>第四次挥手：Client收到FIN后，Client进入TIME_WAIT状态，接着发送一个ACK给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。</li>
+</ol>
+</blockquote>
+<h4 id="套接字（UNIX-Linux程序设计教程12-2章）"><a href="#套接字（UNIX-Linux程序设计教程12-2章）" class="headerlink" title="套接字（UNIX Linux程序设计教程12.2章）"></a>套接字（UNIX Linux程序设计教程12.2章）</h4><p>套接字是应用程序和底层网络协议之间的一个通信端口，这意味<code>想要读来自网络的数据就读套接字，想要写数据至网络就写套接字，想要控制网络协议选项则要设置套接字</code>。从程序员的角度来看，套接字等价于网络，就行文件描述字是磁盘操作的一个端口一样。<br>使用套接字通信必须首先创建套接字，相互通信的两个镜像都必须调用<code>socket()</code>来建立自己一端的套接字。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>以上函数在通信域<code>domain</code>(套接字协议族)中创建一个类型为<code>type</code>，使用协议为<code>protocol</code>的套接字，并返回一个<code>文件描述字</code>，即<code>套接字描述字</code>。一个描述字要么代表一个打开的文件，要么代表一个套接字，不会同时代表两者。套接字描述字和文件描述字可以在许多函数中互相通用，例如，<code>close()</code>可以销毁一个套接字；<code>read()</code>、<code>write()</code>可以读写套接字。但是，与管道历史，套接字不支持<code>文件定位</code>操作。</p>
+<blockquote>
+<p>数据传输的单位有些是字节流，其他的则将若干字节组成一个记录，也称为“数据包”。</p>
+</blockquote>
+<h4 id="文件描述字的打开、创建和关闭（UNIX-Linux程序设计教程3-1章）"><a href="#文件描述字的打开、创建和关闭（UNIX-Linux程序设计教程3-1章）" class="headerlink" title="文件描述字的打开、创建和关闭（UNIX Linux程序设计教程3.1章）"></a>文件描述字的打开、创建和关闭（UNIX Linux程序设计教程3.1章）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> * filename, <span class="keyword">int</span> flages[, <span class="keyword">mode_t</span> mode])</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">create</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> * filename, <span class="keyword">mode_t</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>open()调用成功返回为文件的filename新创建的一个描述字，同时文件位置定位于文件的开始处；调用失败不会创建或修改文件。如果两个进程同时打开一个文件，系统会保证各自有自己的文字描述字。</p>
+<h4 id="文件锁"><a href="#文件锁" class="headerlink" title="文件锁"></a>文件锁</h4><p>文件锁根据其访问分为读锁和写锁，读锁也称为“共享读锁”或“共享锁”；写锁也称为“互斥写锁”或“互斥锁”</p>
+<h4 id="非阻塞I-O（UNIX-Linux程序设计教程3-7章）"><a href="#非阻塞I-O（UNIX-Linux程序设计教程3-7章）" class="headerlink" title="非阻塞I/O（UNIX Linux程序设计教程3.7章）"></a>非阻塞I/O（UNIX Linux程序设计教程3.7章）</h4><p>在默认情况下关于I/O的系统调用总是阻塞的，调用必须等待操作完成，即读写到数据才能返回，但是慢(UNIX根据阻塞还是非阻塞分为2类，一类是所谓的“慢”系统调用，其他的则归为另一类)系统调用并不包括所有阻塞I/O。</p>
+<p>非阻塞I/O可以使用I/O操作如open()、read()或write()不会被永久阻塞，如果操作不能完成，这些调用将立即返回并给出错误码指明操作可能被阻塞。</p>
+<p>对给定的文件描述字，有两种方法指定非阻塞I/O：</p>
+<ol>
+<li>在open()时指定O_NONBLOCK文件状态标志</li>
+<li>对已经打开的描述字，调用fcntl()函数设置O_NONBLOCK文件状态标志</li>
+</ol>
+<p>（例子3-7）在非阻塞I/O情况下传输数据，当读写不能立即完成时，会返回-1并置errno为EAGAIN。这时往往需要再次(for轮询)调用read()或write()。<br>这类循环再次调用称为“轮询”，它存在2个问题，多用户系统中它浪费了CPU时间，本来这些用于等待的CPU时间可以做其他事情或者让给其他经常。另外，它仍然没有避免永久阻塞的问题，虽然write()能立即返回，但它可能由于总是不能写出数据而出现<code>死循环</code>，我们必须设置一定的时间限制，以便时间到时能跳出循环。</p>
+<h4 id="信号驱动的I-O（UNIX-Linux程序设计教程10-2章）"><a href="#信号驱动的I-O（UNIX-Linux程序设计教程10-2章）" class="headerlink" title="信号驱动的I/O（UNIX Linux程序设计教程10.2章）"></a>信号驱动的I/O（UNIX Linux程序设计教程10.2章）</h4><p>上面(3.7章)的非阻塞I/O尽管不阻塞进程，但为了知道描述字上是否有可读数据，进程必须用轮询的方法不断调用read()。使用信号驱动的I/O可以避免这种浪费资源的轮询。</p>
+<p>采用信号驱动的I/O，当在描述字上有数据到达时进程会收到一个信号，此时对该描述字进行输入输出操作将保证不会被阻塞。这样在数据未到达这段时间进程可以进行其他工作，并在确知数据已到达的情况下才发出I/O调用。习惯上也称信号驱动的I/O方式为异步I/O（本质上还是同步I/O）。</p>
+<p>信号驱动的I/O较为复杂且每个进程只有一个<code>SIGIO</code>信号（10.3节），而且不能区别文件描述符产生的信号，为了监控多个输入设备仍然避免不了轮询。解决这类问题最好的方法是使用<code>select()</code>和<code>poll()</code>–<code>多路转接I/O</code>。</p>
+<p><code>select()</code>(10.3.1)函数告诉内核：调用它的进程需要等待多种I/O事件，并且仅当这些事件中的一个或多个出现时，或者指定的时间已经过去时才唤醒调用它的进程。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *rfds, fd_set * wfds, fd_set * efds, struct timeval *timeout)</span></span></span><br></pre></td></tr></table></figure></p>
+<p><code>timeout</code>参数告诉内核至多等待多长时间，有3种情形：永远等待、等待固定的一段时间、不等待。</p>
+<p><code>poll()</code>(10.3.2)与<code>select()</code>在本质上是一样的，都检查一组文件描述字，只是方式不同。<code>poll()</code>检查一组文件描述字以查看是否有任何悬挂的事件，并且可以有选择的为等待某个描述字上的事件而指定时间。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pool.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(struct pollfd fds[], <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span></span><br></pre></td></tr></table></figure></p>
+<p>与<code>select()</code>不同，<code>poll()</code>通过一个其元素为pollfd类型的结构数组fds指明要等待的描述字集合以及其上的事件。</p>
+<h4 id="异步I-O（10-4）"><a href="#异步I-O（10-4）" class="headerlink" title="异步I/O（10.4）"></a>异步I/O（10.4）</h4><ul>
+<li>同步I/O操作导致发出请求的进程被阻塞直到I/O操作完成。</li>
+<li>异步I/O操作在I/O期间不导致发出请求的进程被阻塞。<br>根据这个定义，阻塞、非阻塞、多路转接、信号驱动的I/O均是同步I/O。因为这几种方式一旦I/O操作（read()/write()），进程便需要等待其完成才能继续执行。异步I/O在I/O操作实际间不阻塞进程，进程仍然可以并行的执行其他任务。<br>使用异步I/O编程典型步骤(10.4.5)</li>
+</ul>
+<ol>
+<li>调用open()打开指定的文件获取文件描述字，然后使文件位置指针指向文件开始并选择适当的标志。</li>
+<li>创建并填充异步I/O控制块的aiocb。</li>
+<li>如果使用型号，建立信号句柄捕获异步I/O操作完成信号。</li>
+<li>使用aio_read()、aio_write()或lio_listio()请求异步I/O操作，或调用aio_sync()使异步I/O与磁盘同步。</li>
+<li>如果应用需要等待I/O完成，调用aio_suspend(),或者继续执行并调用aio_error()查询操作是否完成，或者继续执行直到有信号到达。</li>
+<li>I/O操作完成之后，调用aio_erturn()抽取返回值。</li>
+<li>调用close()关闭文件。close()在关闭文件之前将等待所有异步I/O完成。</li>
+</ol>
+<blockquote>
+<p>升级</p>
+<ul>
+<li><a href="https://www.cnblogs.com/tianhangzhang/p/5374034.html" target="_blank" rel="noopener">高性能网络服务器编程：为什么linux下epoll是最好，Netty要比NIO.2好？</a></li>
+<li><a href="https://my.oschina.net/xianggao/blog/663655" target="_blank" rel="noopener">聊聊IO多路复用之select、poll、epoll详解</a></li>
+<li><a href="https://blog.csdn.net/wangtaomtk/article/details/51811011" target="_blank" rel="noopener">C10K问题</a></li>
+</ul>
+</blockquote>
+<blockquote>
+<p>超神</p>
+<ul>
+<li><a href="https://aceld.gitbooks.io/libevent/content/" target="_blank" rel="noopener">libevent深入浅出</a></li>
+<li><a href="http://docs.libuv.org/en/v1.x/design.html" target="_blank" rel="noopener">libuv</a></li>
+<li><a href="https://www.ibm.com/developerworks/library/l-async/" target="_blank" rel="noopener">AIO</a></li>
+<li><a href="https://www.usenix.org/legacy/event/usenix04/tech/general/full_papers/elmeleegy/elmeleegy_html/html.html" target="_blank" rel="noopener">Lazy Asynchronous I/O For Event-Driven Servers</a></li>
+</ul>
+</blockquote>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/25/Linux下Nginx-Tomcat/index.html" rel="next" title="Linux下Nginx+Tomcat">
+                <i class="fa fa-chevron-left"></i> Linux下Nginx+Tomcat
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/30/05-白话容器基础（一）：从进程说开去/index.html" rel="prev" title="05-白话容器基础（一）：从进程说开去">
+                05-白话容器基础（一）：从进程说开去 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#3次握手建立连接"><span class="nav-number">1.</span> <span class="nav-text">3次握手建立连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4次挥手断开连接"><span class="nav-number">2.</span> <span class="nav-text">4次挥手断开连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#套接字（UNIX-Linux程序设计教程12-2章）"><span class="nav-number">3.</span> <span class="nav-text">套接字（UNIX Linux程序设计教程12.2章）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件描述字的打开、创建和关闭（UNIX-Linux程序设计教程3-1章）"><span class="nav-number">4.</span> <span class="nav-text">文件描述字的打开、创建和关闭（UNIX Linux程序设计教程3.1章）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件锁"><span class="nav-number">5.</span> <span class="nav-text">文件锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#非阻塞I-O（UNIX-Linux程序设计教程3-7章）"><span class="nav-number">6.</span> <span class="nav-text">非阻塞I/O（UNIX Linux程序设计教程3.7章）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信号驱动的I-O（UNIX-Linux程序设计教程10-2章）"><span class="nav-number">7.</span> <span class="nav-text">信号驱动的I/O（UNIX Linux程序设计教程10.2章）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步I-O（10-4）"><span class="nav-number">8.</span> <span class="nav-text">异步I/O（10.4）</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

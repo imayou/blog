@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="备份base.repo epel.repo`bash cd /etc/yum.repos.d/ls2016-01-19 base.repo epel.repo mv base.repo base.repo.backmv epel.repo epel.repo.backbash 下载阿里的repo，Centos-7代表的为CentOS7，Centos-6代表的为CentOS6，Centos-5代表的">
+<meta name="keywords" content="ayou,imayou,阿友">
+<meta property="og:type" content="article">
+<meta property="og:title" content="腾讯云更换yum源为阿里云的yum源">
+<meta property="og:url" content="http://www.zidu.top/2018/05/25/腾讯云更换yum源为阿里云的yum源/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="备份base.repo epel.repo`bash cd /etc/yum.repos.d/ls2016-01-19 base.repo epel.repo mv base.repo base.repo.backmv epel.repo epel.repo.backbash 下载阿里的repo，Centos-7代表的为CentOS7，Centos-6代表的为CentOS6，Centos-5代表的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-25T15:55:38.131Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="腾讯云更换yum源为阿里云的yum源">
+<meta name="twitter:description" content="备份base.repo epel.repo`bash cd /etc/yum.repos.d/ls2016-01-19 base.repo epel.repo mv base.repo base.repo.backmv epel.repo epel.repo.backbash 下载阿里的repo，Centos-7代表的为CentOS7，Centos-6代表的为CentOS6，Centos-5代表的">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2018/05/25/腾讯云更换yum源为阿里云的yum源/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>腾讯云更换yum源为阿里云的yum源 | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2018/05/25/腾讯云更换yum源为阿里云的yum源/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">腾讯云更换yum源为阿里云的yum源
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-25 23:31:19 / 修改时间：23:55:38" itemprop="dateCreated datePublished" datetime="2018-05-25T23:31:19+08:00">2018-05-25</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>备份base.repo epel.repo<br><code>`</code>bash</p>
+<h1 id="cd-etc-yum-repos-d"><a href="#cd-etc-yum-repos-d" class="headerlink" title="cd /etc/yum.repos.d/"></a>cd /etc/yum.repos.d/</h1><h1 id="ls"><a href="#ls" class="headerlink" title="ls"></a>ls</h1><p>2016-01-19 base.repo epel.repo</p>
+<h1 id="mv-base-repo-base-repo-back"><a href="#mv-base-repo-base-repo-back" class="headerlink" title="mv base.repo base.repo.back"></a>mv base.repo base.repo.back</h1><h1 id="mv-epel-repo-epel-repo-back"><a href="#mv-epel-repo-epel-repo-back" class="headerlink" title="mv epel.repo epel.repo.back"></a>mv epel.repo epel.repo.back</h1><p><code>bash
+下载阿里的repo，Centos-7代表的为CentOS7，Centos-6代表的为CentOS6，Centos-5代表的为CentOS5…</code>bash</p>
+<h1 id="wget-O-etc-yum-repos-d-base-repo-http-mirrors-aliyun-com-repo-Centos-7-repo"><a href="#wget-O-etc-yum-repos-d-base-repo-http-mirrors-aliyun-com-repo-Centos-7-repo" class="headerlink" title="wget -O /etc/yum.repos.d/base.repo http://mirrors.aliyun.com/repo/Centos-7.repo"></a>wget -O /etc/yum.repos.d/base.repo <a href="http://mirrors.aliyun.com/repo/Centos-7.repo" target="_blank" rel="noopener">http://mirrors.aliyun.com/repo/Centos-7.repo</a></h1><p><code>bash
+清空yum缓存</code>bash</p>
+<h1 id="yum-clean-all"><a href="#yum-clean-all" class="headerlink" title="yum clean all"></a>yum clean all</h1><p><code>bash
+如果出现以下提示</code>shell<br>Another app is currently holding the yum lock; waiting for it to exit…<br>The other application is: yum<br>Memory : 34 M RSS (252 MB VSZ)<br>Started: Wed Jan 20 00:10:40 2016 – 14:53 ago<br>State : Traced/Stopped, pid: 21527<br><code>shell
+则杀掉`pid`为`21527`（不同机器可能不同）的进程</code>bash</p>
+<h1 id="kill-9-21527"><a href="#kill-9-21527" class="headerlink" title="kill -9 21527"></a>kill -9 21527</h1><p><code>bash
+然后再清理</code>bash</p>
+<h1 id="yum-clean-all-1"><a href="#yum-clean-all-1" class="headerlink" title="yum clean all"></a>yum clean all</h1><p><code>bash
+最后重新生成缓存</code>bash</p>
+<h1 id="yum-makecache"><a href="#yum-makecache" class="headerlink" title="yum makecache"></a>yum makecache</h1><p><code>`</code>bash</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/25/CentOS7挂载硬盘（多分区）/index.html" rel="next" title="CentOS7挂载硬盘（多分区）">
+                <i class="fa fa-chevron-left"></i> CentOS7挂载硬盘（多分区）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/25/改极验验证的servlet为springmvc/index.html" rel="prev" title="改极验验证的servlet为springmvc">
+                改极验验证的servlet为springmvc <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#cd-etc-yum-repos-d"><span class="nav-number">1.</span> <span class="nav-text">cd /etc/yum.repos.d/</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ls"><span class="nav-number">2.</span> <span class="nav-text">ls</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mv-base-repo-base-repo-back"><span class="nav-number">3.</span> <span class="nav-text">mv base.repo base.repo.back</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mv-epel-repo-epel-repo-back"><span class="nav-number">4.</span> <span class="nav-text">mv epel.repo epel.repo.back</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wget-O-etc-yum-repos-d-base-repo-http-mirrors-aliyun-com-repo-Centos-7-repo"><span class="nav-number">5.</span> <span class="nav-text">wget -O /etc/yum.repos.d/base.repo http://mirrors.aliyun.com/repo/Centos-7.repo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#yum-clean-all"><span class="nav-number">6.</span> <span class="nav-text">yum clean all</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kill-9-21527"><span class="nav-number">7.</span> <span class="nav-text">kill -9 21527</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#yum-clean-all-1"><span class="nav-number">8.</span> <span class="nav-text">yum clean all</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#yum-makecache"><span class="nav-number">9.</span> <span class="nav-text">yum makecache</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

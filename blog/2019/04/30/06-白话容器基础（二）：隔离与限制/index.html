@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="配图：在上一篇的图中不应该吧Docker Engine或者任何容器管理工具放在跟Hypervisor相同的位置，因为他们并不像Hypervisor那样对应用进程的隔离环境负责，也不会创建任何实体“容器”，真正对隔离环境负责的是宿主机操作系统本身：（图）  我们应该把Docker画在跟应用同级别并且靠边的位置。意味着用户运行在容器里的应用进程，和宿主机上的其他进程一样，都由操作系统统一管理，只不过这">
+<meta name="keywords" content="ayou,imayou,阿友">
+<meta property="og:type" content="article">
+<meta property="og:title" content="06-白话容器基础（二）：隔离与限制">
+<meta property="og:url" content="http://www.zidu.top/2019/04/30/06-白话容器基础（二）：隔离与限制/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="配图：在上一篇的图中不应该吧Docker Engine或者任何容器管理工具放在跟Hypervisor相同的位置，因为他们并不像Hypervisor那样对应用进程的隔离环境负责，也不会创建任何实体“容器”，真正对隔离环境负责的是宿主机操作系统本身：（图）  我们应该把Docker画在跟应用同级别并且靠边的位置。意味着用户运行在容器里的应用进程，和宿主机上的其他进程一样，都由操作系统统一管理，只不过这">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-04-30T12:15:11.239Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="06-白话容器基础（二）：隔离与限制">
+<meta name="twitter:description" content="配图：在上一篇的图中不应该吧Docker Engine或者任何容器管理工具放在跟Hypervisor相同的位置，因为他们并不像Hypervisor那样对应用进程的隔离环境负责，也不会创建任何实体“容器”，真正对隔离环境负责的是宿主机操作系统本身：（图）  我们应该把Docker画在跟应用同级别并且靠边的位置。意味着用户运行在容器里的应用进程，和宿主机上的其他进程一样，都由操作系统统一管理，只不过这">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2019/04/30/06-白话容器基础（二）：隔离与限制/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>06-白话容器基础（二）：隔离与限制 | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2019/04/30/06-白话容器基础（二）：隔离与限制/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">06-白话容器基础（二）：隔离与限制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-30 20:18:33 / 修改时间：20:15:11" itemprop="dateCreated datePublished" datetime="2019-04-30T20:18:33+08:00">2019-04-30</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>配图：<br>在上一篇的图中不应该吧Docker Engine或者任何容器管理工具放在跟Hypervisor相同的位置，因为他们并不像Hypervisor那样对应用进程的隔离环境负责，也不会创建任何实体“容器”，真正对隔离环境负责的是宿主机操作系统本身：（图）</p>
+<blockquote>
+<p>我们应该把Docker画在跟应用同级别并且靠边的位置。意味着用户运行在容器里的应用进程，和宿主机上的其他进程一样，都由操作系统统一管理，只不过这些被隔离的进程多了额外设置的Namespace参数，而Docker扮演的只是旁路式的辅助和管理工作。</p>
+</blockquote>
+<p>docker比虚拟机受欢迎的原因：资源</p>
+<ul>
+<li>虚拟机作为应用沙盒，必须由Hypervisor负责创建虚拟机，真实存在的虚拟机里面必须运行完整的Guest OS才能运行应用进程，带来额外的资源消耗和占用。</li>
+<li>容器只是宿主机上的一个普通进程，不用虚拟化带来新能损耗，而且Namespace作为隔离手段不需单独的Guest OS，使得容器额外的资源占用可以忽略不计。</li>
+</ul>
+<p>缺点-隔离不彻底：</p>
+<ul>
+<li>容器只是宿主机的一个特殊进程，多个容器共享一个宿主机操作系统内核</li>
+<li>很多资源和对象不能被Namespace化，例如时间 意味着在容器中的程序使用<code>settimeofday(2)</code>系统调用修改了时间，整个宿主机的时间都会被修改</li>
+<li>可用Seccomp等技术进行系统调用的过滤和甄别达到安全加固，但是拖累了容器性能，默认情况下不知道该开启禁用哪些系统调用</li>
+</ul>
+<blockquote>
+<p>容器里的一个应用进程既然对应宿主的一个进程，所以会和宿主其他进程平等竞争资源（比如CPU、内存），显然不是一个“沙盒”应该表现出来的合理行为，而Linux Cgroup(全称：Linux Control Group)就是linux内核中用来为进程设置资源限制的一个重要功能，可以限制包括CPU、内存、磁盘、网络带宽等等。</p>
+</blockquote>
+<p>在Linux中，Cgroup给用户暴露出来的操作接口是文件系统，以文件和目录的方式组织在系统的/sys/fs/cgroup路径下，centos root用户下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer ~]# mount -t cgroup</span><br><span class="line">cgroup on /sys/fs/cgroup/systemd type cgroup (rw,nosuid,nodev,noexec,relatime,xattr,release_agent=/usr/lib/systemd/systemd-cgroups-agent,name=systemd)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpu,cpuacct type cgroup (rw,nosuid,nodev,noexec,relatime,cpuacct,cpu)</span><br><span class="line">cgroup on /sys/fs/cgroup/devices type cgroup (rw,nosuid,nodev,noexec,relatime,devices)</span><br><span class="line">cgroup on /sys/fs/cgroup/net_cls type cgroup (rw,nosuid,nodev,noexec,relatime,net_cls)</span><br><span class="line">cgroup on /sys/fs/cgroup/freezer type cgroup (rw,nosuid,nodev,noexec,relatime,freezer)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpuset type cgroup (rw,nosuid,nodev,noexec,relatime,cpuset)</span><br><span class="line">cgroup on /sys/fs/cgroup/blkio type cgroup (rw,nosuid,nodev,noexec,relatime,blkio)</span><br><span class="line">cgroup on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)</span><br><span class="line">cgroup on /sys/fs/cgroup/perf_event type cgroup (rw,nosuid,nodev,noexec,relatime,perf_event)</span><br><span class="line">cgroup on /sys/fs/cgroup/hugetlb type cgroup (rw,nosuid,nodev,noexec,relatime,hugetlb)</span><br></pre></td></tr></table></figure></p>
+<p>输出结果是一系列文件系统目录，如果没有看到自己的目录，那就需要自己去挂载Cgroups</p>
+<p>可以看到在/sys/fs/cgroup下有很多诸如cpuset、cpu、memory这样的子目录（也叫子系统）。你看到的均为机器当前可被Cgroups进行限制的资源种类，对应的种类下可以看到具体可被限制的方法，比如cpu子系统：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer ~]# ls /sys/fs/cgroup/cpu</span><br><span class="line">cgroup.clone_children  cgroup.procs          cpuacct.stat   cpuacct.usage_percpu  cpu.cfs_quota_us  cpu.rt_runtime_us  cpu.stat           release_agent  tasks</span><br><span class="line">cgroup.event_control   cgroup.sane_behavior  cpuacct.usage  cpu.cfs_period_us     cpu.rt_period_us  cpu.shares         notify_on_release  system.slice   user.slice</span><br></pre></td></tr></table></figure></p>
+<p>上面的cfs_period和cfs_quota组合使用可以用来限制进程在长度为cfs_period的一段时间内，只能被分配到总量为cfs_quota的CPU时间。</p>
+<p>使用：</p>
+<ul>
+<li>需要在子系统下创建目录，比如进入/sys/fs/cgroup/cpu目录下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer cpu]# mkdir container</span><br><span class="line">[root@MyCloudServer cpu]# ls container/</span><br><span class="line">cgroup.clone_children  cgroup.procs  cpuacct.usage         cpu.cfs_period_us  cpu.rt_period_us   cpu.shares  notify_on_release</span><br><span class="line">cgroup.event_control   cpuacct.stat  cpuacct.usage_percpu  cpu.cfs_quota_us   cpu.rt_runtime_us  cpu.stat    tasks</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>这个目录就称为一个“控制组”，系统会在你创建的container目录下自动生成对应的资源限制文件。</p>
+</blockquote>
+<ul>
+<li>向container组里的cfs_quota文件写入20ms（20000us）：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer ~]# echo 20000 &gt; /sys/fs/cgroup/cpu/container/cpu.cfs_quota_us </span><br><span class="line">[root@MyCloudServer ~]# cat /sys/fs/cgroup/cpu/container/cpu.cfs_quota_us </span><br><span class="line">20000</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>意味着100ms的时间里，被该控制组限制的进程只能使用20ms的cpu时间，也就是说这个进程只能使用20%的cpu带宽</p>
+</blockquote>
+<ul>
+<li>把被限制的进程PID写入container组里的tasks文件，上面的设置就生效了<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer ~]# echo 5445 &gt; /sys/fs/cgroup/cpu/container/tasks</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>除了CPU子系统外，Cgroups的每一项子系统都有其独有的资源限制能力，比如：</p>
+<ul>
+<li>blkio，为块设备设定I/O限制，一般用于磁盘等设备；</li>
+<li>cpuset，为进程分配单独的CPU核和对应的内存节点；</li>
+<li>memory，为进程设定内存使用的限制</li>
+</ul>
+<p>简单粗暴3步骤，创建子目录，设定参数，加PID到tasks里<br>至于这些控制组下面的资源文件里填上什么值，就靠用户执行docker run时的参数指定了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --cpu-period=100000 --cpu-quota=20000 ubuntu /bin/bash</span><br></pre></td></tr></table></figure></p>
+<p>启动这个容器后，我们可以通过查看Cgroups文件系统，CPU子系统中，“docker”这个控制组里的资源限制文件的内容来确认：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@MyCloudServer ~]# cat /sys/fs/cgroup/docker/5d5c9f67d/cpu.cfs_quota_us</span><br><span class="line">20000</span><br><span class="line">[root@MyCloudServer ~]# cat /sys/fs/cgroup/docker/5d5c9f67d/cpu.cfs_period_us</span><br><span class="line">100000</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/30/07-JVM是如何实现反射的/index.html" rel="next" title="07-JVM是如何实现反射的">
+                <i class="fa fa-chevron-left"></i> 07-JVM是如何实现反射的
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/08/07-白话容器基础（三）：深入理解容器镜像/index.html" rel="prev" title="07-白话容器基础（三）：深入理解容器镜像">
+                07-白话容器基础（三）：深入理解容器镜像 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

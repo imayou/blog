@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="使用分布式系统主要有两方面原因 增大系统容量  我们的业务量越来越大，而要能应对越来越大的业务量，一台机器的性能已经无法满足了，我们需要多台机器才能应对大规模的应用场景。所以，我们需要垂直或是水平拆分业务系统，让其变成一个分布式的架构。   加强系统可用  我们的业务越来越关键，需要提高整个系统架构的可用性，这就意味着架构中不能存在单点故障。这样，整个系统不会因为一台机器出故障而导致整体不可用。所">
+<meta name="keywords" content="分布式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式一些总结">
+<meta property="og:url" content="http://www.zidu.top/2019/05/08/分布式一些总结/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="使用分布式系统主要有两方面原因 增大系统容量  我们的业务量越来越大，而要能应对越来越大的业务量，一台机器的性能已经无法满足了，我们需要多台机器才能应对大规模的应用场景。所以，我们需要垂直或是水平拆分业务系统，让其变成一个分布式的架构。   加强系统可用  我们的业务越来越关键，需要提高整个系统架构的可用性，这就意味着架构中不能存在单点故障。这样，整个系统不会因为一台机器出故障而导致整体不可用。所">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-08T03:28:34.473Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式一些总结">
+<meta name="twitter:description" content="使用分布式系统主要有两方面原因 增大系统容量  我们的业务量越来越大，而要能应对越来越大的业务量，一台机器的性能已经无法满足了，我们需要多台机器才能应对大规模的应用场景。所以，我们需要垂直或是水平拆分业务系统，让其变成一个分布式的架构。   加强系统可用  我们的业务越来越关键，需要提高整个系统架构的可用性，这就意味着架构中不能存在单点故障。这样，整个系统不会因为一台机器出故障而导致整体不可用。所">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2019/05/08/分布式一些总结/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式一些总结 | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2019/05/08/分布式一些总结/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式一些总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-08 10:16:22 / 修改时间：11:28:34" itemprop="dateCreated datePublished" datetime="2019-05-08T10:16:22+08:00">2019-05-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="使用分布式系统主要有两方面原因"><a href="#使用分布式系统主要有两方面原因" class="headerlink" title="使用分布式系统主要有两方面原因"></a>使用分布式系统主要有两方面原因</h4><ul>
+<li><p>增大系统容量</p>
+<blockquote>
+<p>我们的业务量越来越大，而要能应对越来越大的业务量，一台机器的性能已经无法满足了，我们需要多台机器才能应对大规模的应用场景。所以，我们需要垂直或是水平拆分业务系统，让其变成一个分布式的架构。</p>
+</blockquote>
+</li>
+<li><p>加强系统可用</p>
+<blockquote>
+<p>我们的业务越来越关键，需要提高整个系统架构的可用性，这就意味着架构中不能存在单点故障。这样，整个系统不会因为一台机器出故障而导致整体不可用。所以，需要通过分布式架构来冗余系统以消除单点故障，从而提高系统的可用性。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><ul>
+<li>因为模块化，所以系统模块重用度更高；</li>
+<li>因为软件服务模块被拆分，开发和发布速度可以并行而变得更快；</li>
+<li>系统扩展性更高；</li>
+<li>团队协作流程也会得到改善；</li>
+<li>……</li>
+</ul>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>架构设计变得复杂（尤其是其中的分布式事务）。</li>
+<li>部署单个服务会比较快，但是如果一次部署需要多个服务，部署会变得复杂。</li>
+<li>系统的吞吐量会变大，但是响应时间会变长。</li>
+<li>运维复杂度会因为服务变多而变得很复杂。</li>
+<li>架构复杂导致学习曲线变大。</li>
+<li>测试和查错的复杂度增大。</li>
+<li>技术可以很多样，这会带来维护和运维的复杂度。</li>
+<li>管理分布式系统中的服务和调度变得困难和复杂。</li>
+</ul>
+<h4 id="CAP定律"><a href="#CAP定律" class="headerlink" title="CAP定律"></a>CAP定律</h4><ul>
+<li>一个分布式系统里面，节点组成的网络本来应该是连通的。然而可能因为一些故障，使得有些节点之间不连通了，整个网络就分成了几块区域。数据就散布在了这些不连通的区域中。这就叫分区。</li>
+<li>当你一个数据项只在一个节点中保存，那么分区出现后，和这个节点不连通的部分就访问不到这个数据了。这时分区就是无法容忍的。</li>
+<li>提高分区容忍性的办法就是一个数据项复制到多个节点上，那么出现分区之后，这一数据项就可能分布到各个区里。容忍性就提高了。</li>
+<li>然而，要把数据复制到多个节点，就会带来一致性的问题，就是多个节点上面的数据可能是不一致的。要保证一致，每次写操作就都要等待全部节点写成功，而这等待又会带来可用性的问题。</li>
+<li>总的来说就是，数据存在的节点越多，分区容忍性越高，但要复制更新的数据就越多，一致性就越难保证。为了保证一致性，更新所有节点数据所需要的时间就越长，可用性就会降低。</li>
+</ul>
+<h4 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h4><blockquote>
+<p>关系数据库的ACID模型拥有 高一致性 + 可用性 很难进行分区：</p>
+</blockquote>
+<ul>
+<li>Atomicity [ˌætəˈmɪsɪti]原子性：一个事务中所有操作都必须全部完成，要么全部不完成。</li>
+<li>Consistency一致性. 在事务开始或结束时，数据库应该在一致状态。</li>
+<li>Isolation [ˌaɪsəˈleʃən]隔离层. 事务将假定只有它自己在操作数据库，彼此不知晓。</li>
+<li>Durability [ˌdjʊrəˈbɪlətɪ]. 一旦事务完成，就不能返回。</li>
+<li>跨数据库两段提交事务：2PC (two-phase[fez] commit)， 2PC is the anti-scalability pattern (Pat Helland) 是反可伸缩模式的，JavaEE中的JTA事务可以支持2PC。因为2PC是反模式，尽量不要使用2PC，使用BASE来回避。</li>
+</ul>
+<h4 id="BASE模型"><a href="#BASE模型" class="headerlink" title="BASE模型"></a>BASE模型</h4><ul>
+<li>BASE模型反ACID模型，完全不同ACID模型，牺牲高一致性，获得可用性或可靠性：</li>
+<li>Basically Available基本可用。支持分区失败(e.g. sharding碎片划分数据库)</li>
+<li>Soft state软状态 状态可以有一段时间不同步，异步。</li>
+<li>Eventually [ɪˈvɛntʃuəli] consistent最终一致，最终数据是一致的就可以了，而不是时时高一致。</li>
+<li>BASE思想的主要实现有<ul>
+<li>按功能划分数据库</li>
+<li>sharding碎片</li>
+</ul>
+</li>
+<li>BASE思想主要强调基本的可用性，如果你需要High 可用性，也就是纯粹的高性能，那么就要以一致性或容忍性为牺牲，BASE思想的方案在性能上还是有潜力可挖的。</li>
+</ul>
+<h4 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h4><ul>
+<li>CA (consistency高一致性 + availability高可用性). 使用2pc 两阶段事务提交来保证。其缺点无法实现分区容错性，一旦某个操作失败，整个系统就出错，无法容忍(水至清则无鱼)。</li>
+<li>CP (consistency高一致性 + partition tolerance分区容错性). 使用Paxos来保证，可用性降低。</li>
+<li>AP (availability高可用性 + partition tolerance分区容错性). 使用Gossip等实现最终一致性，如Dynamo.</li>
+</ul>
+<h4 id="隔离设计"><a href="#隔离设计" class="headerlink" title="隔离设计"></a>隔离设计</h4><ul>
+<li>Bulkheads(隔板)<ul>
+<li>用户来分离</li>
+<li>服务种类分离<blockquote>
+<p><a href="https://www.roncoo.com/course/view/b181d1862c68461c81298b8c9222922e" target="_blank" rel="noopener">https://www.roncoo.com/course/view/b181d1862c68461c81298b8c9222922e</a></p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="异步通讯设计"><a href="#异步通讯设计" class="headerlink" title="异步通讯设计"></a>异步通讯设计</h4><blockquote>
+<p>前面所说的隔离设计通常都需要对系统做解耦设计，而把一个单体系统解耦，不单单是把业务功能拆分出来，正如上面所说，拆分完后还会面对很多的问题。其中一个重要的问题就是这些系统间的通讯。</p>
+</blockquote>
+<ul>
+<li>通过订阅的方式<blockquote>
+<p>这种情况下，接收方（receiver）会来订阅发送方（sender）的消息，发送方会把相关的消息或数据放到接收方所订阅的队列中，而接收方会从队列中获取数据。</p>
+</blockquote>
+</li>
+<li>通过 Broker 的方式<blockquote>
+<p>所谓 Broker，就是一个中间人，发送方（sender）和接收方（receiver）都互相看不到对方，它们看得到的是一个 Broker，发送方向 Broker 发送消息，接收方向 Broker 订阅消息。</p>
+</blockquote>
+</li>
+<li>事件驱动设计<blockquote>
+<p>上述的第二种和第三种方式就是比较著名的事件驱动架构（EDA – Event Driven Architecture [ˈɑ:rkɪtektʃə(r)] ）。正如前面所说，事件驱动最好是使用 Broker 方式，服务间通过交换消息来完成交流和整个流程的驱动。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="幂等性设计"><a href="#幂等性设计" class="headerlink" title="幂等性设计"></a>幂等性设计</h4><ul>
+<li>全局 ID</li>
+<li>HTTP 的幂等性<blockquote>
+<p><a href="http://www.cnblogs.com/weidagang2046/archive/2011/06/04/2063696.html" target="_blank" rel="noopener">http://www.cnblogs.com/weidagang2046/archive/2011/06/04/2063696.html</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="服务的状态"><a href="#服务的状态" class="headerlink" title="服务的状态"></a>服务的状态</h4><ul>
+<li>无状态的服务 Stateless</li>
+<li>有状态的服务 Stateful</li>
+<li>服务状态的容错设计<ul>
+<li>cp系统Paxos</li>
+</ul>
+</li>
+</ul>
+<h4 id="补偿事务"><a href="#补偿事务" class="headerlink" title="补偿事务"></a>补偿事务</h4><ul>
+<li>ACID 和 BASE</li>
+<li>业务补偿</li>
+</ul>
+<h4 id="重试设计"><a href="#重试设计" class="headerlink" title="重试设计"></a>重试设计</h4><ul>
+<li>重试的场景</li>
+<li>重试的策略<blockquote>
+<p><a href="https://github.com/spring-projects/spring-retry" target="_blank" rel="noopener">https://github.com/spring-projects/spring-retry</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="熔断设计"><a href="#熔断设计" class="headerlink" title="熔断设计"></a>熔断设计</h4><ul>
+<li>闭合（Closed）状态    </li>
+<li>断开 (Open) 状态</li>
+<li>半开（Half-Open）状态</li>
+</ul>
+<h4 id="限流设计"><a href="#限流设计" class="headerlink" title="限流设计"></a>限流设计</h4><ul>
+<li>限流的策略</li>
+<li>计数器方式</li>
+<li>队列算法</li>
+<li>漏斗算法 Leaky Bucket</li>
+<li>令牌桶算法 Token Bucket</li>
+<li>基于响应时间的动态限流</li>
+</ul>
+<h4 id="降级设计"><a href="#降级设计" class="headerlink" title="降级设计"></a>降级设计</h4><ul>
+<li>牺牲</li>
+<li>降低一致性。从强一致性变成最终一致性。</li>
+<li>停止次要功能。停止访问不重要的功能，从而释放出更多的资源。</li>
+<li>简化功能。把一些功能简化掉，比如，简化业务流程，或是不再返回全量数据，只返回部分数据。s</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/08/08-白话容器基础（四）：重新认识Docker容器/index.html" rel="next" title="08-白话容器基础（四）：重新认识Docker容器">
+                <i class="fa fa-chevron-left"></i> 08-白话容器基础（四）：重新认识Docker容器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/08/jenkins相关/index.html" rel="prev" title="jenkins相关">
+                jenkins相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用分布式系统主要有两方面原因"><span class="nav-number">1.</span> <span class="nav-text">使用分布式系统主要有两方面原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优势"><span class="nav-number">2.</span> <span class="nav-text">优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">3.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CAP定律"><span class="nav-number">4.</span> <span class="nav-text">CAP定律</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ACID"><span class="nav-number">5.</span> <span class="nav-text">ACID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BASE模型"><span class="nav-number">6.</span> <span class="nav-text">BASE模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#选择"><span class="nav-number">7.</span> <span class="nav-text">选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#隔离设计"><span class="nav-number">8.</span> <span class="nav-text">隔离设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步通讯设计"><span class="nav-number">9.</span> <span class="nav-text">异步通讯设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#幂等性设计"><span class="nav-number">10.</span> <span class="nav-text">幂等性设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务的状态"><span class="nav-number">11.</span> <span class="nav-text">服务的状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#补偿事务"><span class="nav-number">12.</span> <span class="nav-text">补偿事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重试设计"><span class="nav-number">13.</span> <span class="nav-text">重试设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#熔断设计"><span class="nav-number">14.</span> <span class="nav-text">熔断设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#限流设计"><span class="nav-number">15.</span> <span class="nav-text">限流设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#降级设计"><span class="nav-number">16.</span> <span class="nav-text">降级设计</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

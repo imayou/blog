@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: 'SGOAPJQXQO',
+      apiKey: '4ce1d5d85421933a87ccc5ec2798e4fb',
+      indexName: 'zidublog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="线程实现 继承Thread类创建线程 实现Runnable接口创建线程 实现Callable接口通过FutureTask包装器来创建Thread线程 使用ExecutorService、Callable、Future实现有返回结果的线程  线程状态 NEW  —(Thread.start)—&amp;gt;RUNNING RUNNABLE RUNNING—(Object.wait,Thread.join,">
+<meta name="keywords" content="多线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程总结">
+<meta property="og:url" content="http://www.zidu.top/2019/05/13/多线程总结/index.html">
+<meta property="og:site_name" content="自读">
+<meta property="og:description" content="线程实现 继承Thread类创建线程 实现Runnable接口创建线程 实现Callable接口通过FutureTask包装器来创建Thread线程 使用ExecutorService、Callable、Future实现有返回结果的线程  线程状态 NEW  —(Thread.start)—&amp;gt;RUNNING RUNNABLE RUNNING—(Object.wait,Thread.join,">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-13T14:34:31.636Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多线程总结">
+<meta name="twitter:description" content="线程实现 继承Thread类创建线程 实现Runnable接口创建线程 实现Callable接口通过FutureTask包装器来创建Thread线程 使用ExecutorService、Callable、Future实现有返回结果的线程  线程状态 NEW  —(Thread.start)—&amp;gt;RUNNING RUNNABLE RUNNING—(Object.wait,Thread.join,">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.zidu.top/2019/05/13/多线程总结/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>多线程总结 | 自读</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自读</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">I'm AYou</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zidu.top/2019/05/13/多线程总结/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AYOU">
+      <meta itemprop="description" content="世友的个人网站。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自读">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多线程总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-13 22:33:10 / 修改时间：22:34:31" itemprop="dateCreated datePublished" datetime="2019-05-13T22:33:10+08:00">2019-05-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="线程实现"><a href="#线程实现" class="headerlink" title="线程实现"></a>线程实现</h4><ul>
+<li>继承Thread类创建线程</li>
+<li>实现Runnable接口创建线程</li>
+<li>实现Callable接口通过FutureTask包装器来创建Thread线程</li>
+<li>使用ExecutorService、Callable、Future实现有返回结果的线程</li>
+</ul>
+<h4 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h4><ol>
+<li>NEW  —(Thread.start)—&gt;RUNNING</li>
+<li>RUNNABLE</li>
+<li>RUNNING—(Object.wait,Thread.join,LockSupport.park)—&gt;WAITING—(Object.notify,Object.notifyAll,LockSupport.unpark)—&gt;RUNNING</li>
+<li>BLOCKED  —(acquire lock)—&gt; READY</li>
+<li>DEAD</li>
+</ol>
+<h4 id="锁实现"><a href="#锁实现" class="headerlink" title="锁实现"></a>锁实现</h4><h5 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h5><blockquote>
+<p>包含(对象头|实例对象|对齐填充)—&gt;对象头保存了锁标志位和执行Monitor的起始地址，Monitor包含3部分Owner(当期持有线程)，_EntryList(进入的线程), _WaitSet(等待获取锁的线程)。synchronized应用在方法上时通过ACC_SYNCHRONIZED实现，在同步块上时通过monitorenter和monitorexit实现</p>
+</blockquote>
+<p>优化：偏向锁–&gt;轻量锁–&gt;自旋锁–&gt;重量级锁  偏向锁同一线程再次获取锁，失败在升级为cas轻量级锁，在失败就短暂自旋放置被挂起，还失败就升级为重量级锁。</p>
+<h5 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h5><blockquote>
+<p>内部有公平锁和非公平锁2种实现，差别在于新进入的线程是否比在同步队列的线程更早获得锁，Semaphore也类似，差别在于ReentrantLock是独占锁，Semaphore是共享锁</p>
+</blockquote>
+<h5 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h5><p>强制刷新主内存，保证数据可见</p>
+<h5 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h5><h4 id="AQS与Lock"><a href="#AQS与Lock" class="headerlink" title="AQS与Lock"></a>AQS与Lock</h4><p>AQS(AbstractQueuedSynchronizer队列同步器)是实现Lock的基础，包含：</p>
+<ul>
+<li>标志位(int state，值为1时表示有线程占用，其他线程需要进入同步队列等待)</li>
+<li>同步队列 是个双向链表 </li>
+<li>等待队列 当获得锁的线程需要等待某个条件时进入，可以有多个队列。当获得条件时会进入同步队列进行锁竞争。ReentrantLock就是基于AQS实现的</li>
+</ul>
+<h4 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService newCachedThreadPool = Executors.newCachedThreadPool();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程，适合要求低延迟的短期任务场景。</li>
+<li>newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待，适用任务数量不均匀的场景，对内存压力不敏感，但系统负载比较敏感的场景。</li>
+<li>newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行，适用定期执行任务场景，支持固定频率和固定延时。</li>
+<li>newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行，适用于保证异步执行顺序的场景。</li>
+<li>newWorkStealingPool 使用ForkJoinPool,多任务队列固定并行度，适合任务执行时间长不均匀的场景<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ThreadPoolExecutor(<span class="keyword">int</span> corePoolSize,   <span class="comment">//核心线程数，默认核心线程会一直存活</span></span><br><span class="line">                   <span class="keyword">int</span> maximumPoolSize,<span class="comment">//最大线程数</span></span><br><span class="line">                   <span class="keyword">long</span> keepAliveTime, <span class="comment">//空闲时间，当线程闲置超过这个时间就会销毁</span></span><br><span class="line">                   TimeUnit unit,	   <span class="comment">//空闲时间单位</span></span><br><span class="line">                   BlockingQueue&lt;Runnable&gt; workQueue,<span class="comment">//缓冲队列</span></span><br><span class="line">                   ThreadFactory threadFactory,      <span class="comment">//对线程进行定制，例如group，线程名称，优先级等</span></span><br><span class="line">                   RejectedExecutionHandler handler) <span class="comment">//拒绝策略</span></span><br><span class="line">		</span><br><span class="line">		<span class="comment">/**</span></span><br><span class="line"><span class="comment">		 * 缓冲队列</span></span><br><span class="line"><span class="comment">		 * ArrayBlockingQueue(capacity) 有界队列</span></span><br><span class="line"><span class="comment">		 * LinkedBlockingQueue          无界队列</span></span><br><span class="line"><span class="comment">		 * SynchronousQueue				同步队列</span></span><br><span class="line"><span class="comment">		 * </span></span><br><span class="line"><span class="comment">		 * 拒绝策略</span></span><br><span class="line"><span class="comment">		 * Abort         忽略，默认</span></span><br><span class="line"><span class="comment">		 * Discard       丢弃</span></span><br><span class="line"><span class="comment">		 * CallerRuns    提交任务的线程执行</span></span><br><span class="line"><span class="comment">		 * DisCardOldest 丢弃最早的任务</span></span><br><span class="line"><span class="comment">		 */</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="常见JUC工具"><a href="#常见JUC工具" class="headerlink" title="常见JUC工具"></a>常见JUC工具</h4><p>AtomicLong<br>AtomicInteger<br>AtomicBoolean<br>LongAdder<br>DoubleAdder<br>LongAccumulator<br>DoubleAccumulator</p>
+<ul>
+<li>Atomic基于unsafe类实现，基于cas</li>
+<li>Adder基于Cell，分段锁思想，空间换时间，更适合高并发场景，java8提供</li>
+<li>Accumulator 提供更高级的使用方法，比如可以将相加操作改成相乘操作</li>
+</ul>
+<p>AtomicReference 对象的原子性读写操作<br>AtomicStampedReference 时间戳方式解决ABA问题<br>AtomicMarkableReference 标记位解决ABA问题</p>
+<p>ReentrantLock  独占锁，Semaphore是共享锁<br>ReentrantReadWriteLock<br>StampedLock  jdk1.8改进的读写锁<br>LockSupport</p>
+<p>Executors<br>ForkJoinPool  分治思想+工作窃取<br>FutureTask<br>CompleteAbleFuture 支持流式调用，多Future组合，尅设置完成时间</p>
+<p>ArrayBlockingQueue(capacity) 单端队列<br>LinkedBlockingQueue          双端队列</p>
+<p>CountDownlath 多线程任务汇总<br>CyclicBarrier 多线程并发执行 测试<br>Semaphore     控制并发度(共享锁)</p>
+<p>ConcurrentHashMap<br>CopyOnWriteArrayList COW适合读多写少，少数据量，高并发</p>
+<h4 id="CAS与ABA问题"><a href="#CAS与ABA问题" class="headerlink" title="CAS与ABA问题"></a>CAS与ABA问题</h4><p>读取数据—&gt;操作数据—&gt;值是否改变?(Y则读取数据)—&gt;写回数据</p>
+<blockquote>
+<p>读取数据修改，写会数据判断是否修改，修改过就重新读取否则直接写回，这是一种乐观策略，认为并发操作并不会总发生。</p>
+</blockquote>
+<p>ABA问题：</p>
+<ol>
+<li>如果T1读取值</li>
+<li>T2写回了B值</li>
+<li>T3又写回了A值</li>
+<li>T1无法判断值是否修改过<blockquote>
+<p>虽然不影响结果，但还是要防范，解决方法：增加标志位或时间戳。</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h4><ul>
+<li>如何实现一个生产者和消费者模型(锁，信号量，线程通信，阻塞队列等)</li>
+<li>wait与sleep有什么不同?<ol>
+<li>wait属于Object类，sleep属于Thread类</li>
+<li>wait会释放对象锁，sleep不会</li>
+<li>wait需要在同步块中使用，sleep可以在任何地方使用</li>
+<li>sleep需要捕获异常，wait不需要</li>
+</ol>
+</li>
+<li>读写锁适用什么场景？ReentrantReadWriteLock是如何实现的？<ul>
+<li>读写锁适合读并发多并发写少的场景，解决方法CopyOnWrite</li>
+</ul>
+</li>
+<li>如何尽可能提高多线程并发性能<ol>
+<li>减少临界区范围</li>
+<li>使用ThreadLocal减少线程切换</li>
+<li>使用读写锁或CopyOnWrite机制</li>
+</ol>
+</li>
+<li>ThreadLocal用来解决什么问题，如何实现的。<ol>
+<li>解决多线程数据隔离的问题，不是解决多线程变量共享的问题</li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/13/JVM总结/index.html" rel="next" title="JVM总结">
+                <i class="fa fa-chevron-left"></i> JVM总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">AYOU</p>
+              <p class="site-description motion-element" itemprop="description">世友的个人网站。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/imayou" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#线程实现"><span class="nav-number">1.</span> <span class="nav-text">线程实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程状态"><span class="nav-number">2.</span> <span class="nav-text">线程状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁实现"><span class="nav-number">3.</span> <span class="nav-text">锁实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#synchronized"><span class="nav-number">3.1.</span> <span class="nav-text">synchronized</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ReentrantLock"><span class="nav-number">3.2.</span> <span class="nav-text">ReentrantLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#volatile"><span class="nav-number">3.3.</span> <span class="nav-text">volatile</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ThreadLocal"><span class="nav-number">3.4.</span> <span class="nav-text">ThreadLocal</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AQS与Lock"><span class="nav-number">4.</span> <span class="nav-text">AQS与Lock</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程池"><span class="nav-number">5.</span> <span class="nav-text">线程池</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见JUC工具"><span class="nav-number">6.</span> <span class="nav-text">常见JUC工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CAS与ABA问题"><span class="nav-number">7.</span> <span class="nav-text">CAS与ABA问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#面试题"><span class="nav-number">8.</span> <span class="nav-text">面试题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AYOU</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
